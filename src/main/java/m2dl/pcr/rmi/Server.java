@@ -1,5 +1,6 @@
 package m2dl.pcr.rmi;
 
+import java.rmi.NotBoundException;
 import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.RemoteException;
@@ -29,6 +30,8 @@ public class Server extends UnicastRemoteObject implements IServer {
     }
 
     public void enregistrement(Client client) throws RemoteException {
+        //Registry registry = LocateRegistry.getRegistry(null);
+        //Client stub = (Client) registry.lookup("client");
         clients.add(client);
     }
 
@@ -39,16 +42,13 @@ public class Server extends UnicastRemoteObject implements IServer {
     public static void main(String args[]) {
 
         System.setProperty("java.rmi.server.hostname", "127.0.0.1");
-
         System.setProperty("java.rmi.server.codebase", IServer.class.getProtectionDomain().getCodeSource().getLocation().toString());
 
         try {
-            Server obj = new Server();
-            IServer chat_stub = (IServer) UnicastRemoteObject.exportObject(obj, 0);
+            IServer obj = new Server();
 
-            // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.getRegistry();
-            registry.bind("message", chat_stub);
+            registry.rebind("server", obj);
 
             System.err.println("Server ready");
 
