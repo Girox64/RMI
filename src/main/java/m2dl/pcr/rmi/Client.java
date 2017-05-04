@@ -4,12 +4,12 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.Scanner;
 
-public class Client extends UnicastRemoteObject implements IClient, Serializable {
+public class Client implements Serializable {
 
     private String name;
+    private int test = 0;
 
     public Client() throws RemoteException {
         super();
@@ -27,7 +27,7 @@ public class Client extends UnicastRemoteObject implements IClient, Serializable
 
             while (true) {
                 scanner = new Scanner(System.in);
-                System.out.print("Message ? ");
+                System.out.print(test + " Message ? ");
                 String message = scanner.nextLine().trim();
                 stub.sendBroadcast(message, this);
             }
@@ -39,6 +39,7 @@ public class Client extends UnicastRemoteObject implements IClient, Serializable
     }
 
     public void receive(String message) {
+        test++;
         System.out.println(message);
     }
 
@@ -48,20 +49,9 @@ public class Client extends UnicastRemoteObject implements IClient, Serializable
 
     public static void main(String[] args) {
 
-        System.setProperty("java.rmi.server.hostname", "127.0.0.1");
-        System.setProperty("java.rmi.server.codebase", IClient.class.getProtectionDomain().getCodeSource().getLocation().toString());
-
         try {
-            Client obj = new Client();
-
-            Registry registry = LocateRegistry.getRegistry();
-            registry.rebind("client", (IClient) obj);
-
-            System.err.println("Client ready");
-            obj.run();
-
-        } catch (Exception e) {
-            System.err.println("Client exception: " + e.toString());
+            new Client().run();
+        } catch (RemoteException e) {
             e.printStackTrace();
         }
     }
